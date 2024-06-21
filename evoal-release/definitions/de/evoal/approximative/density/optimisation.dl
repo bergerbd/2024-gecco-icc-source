@@ -1,0 +1,26 @@
+import "definitions" from de.evoal.core.optimisation;
+
+module de.evoal.approximative.density.optimisation {
+	/**
+	 * Base type for density-based fitness value handling.
+	 */
+	abstract type density extends 'decorated-fitness-function' {
+	    /**
+	     * Which probability calculation should be used (source-based, target-based, both).
+	     */
+		kind : string;
+	
+		/**
+		 * Exponent for the formula.
+		 */
+		exponent : real;
+	
+		/**
+		 * Exponent for the formula.
+		 */
+		'root-exponent' : real;
+	}
+	
+	type 'kernel-density' extends density {}
+	type 'gaussian-density' extends density {}
+}

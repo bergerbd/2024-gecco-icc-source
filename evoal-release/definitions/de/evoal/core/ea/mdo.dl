@@ -1,0 +1,57 @@
+import "definitions" from de.evoal.core.optimisation;
+import "definitions" from de.evoal.core.ea.optimisation;
+import "definitions" from de.evoal.core.ea.'genetic-programming';
+
+/**
+ * Model-driven optimisation
+ */
+module de.evoal.core.ea.mdo {
+
+    /**
+     * Pseudo-type used for .ddl (and .ol) specification.
+     */
+    abstract type 'model' {
+    }
+
+    /**
+     * This crossover takes two individuals and
+     */
+    type 'feature-swap-crossover' extends 'crossover' {
+		probability : real;
+    }
+
+    type 'literal-mutator' extends 'crossover' {
+		probability : real;
+    }
+
+    type 'array-size-mutator' extends 'mutator' {
+		probability : real;
+    }
+
+    type 'array-reorder-mutator' extends 'mutator' {
+		probability : real;
+    }
+
+    /**
+     * Creates a random initial population for models
+     */
+    type 'random-model-population' extends 'initial-population' {
+    }
+    
+	/**
+     * Genotype for genetic programming.
+     */
+	type 'model-genotype' extends genotype {
+        chromosomes : array instance 'model-chromosome';
+	}
+
+	/**
+	 * A model chromosome represents a complete model.
+	 */
+	type 'model-chromosome' {
+        /**
+         * The root class name
+         */
+        root : instance model;
+	}
+}

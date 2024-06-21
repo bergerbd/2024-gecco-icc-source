@@ -1,0 +1,345 @@
+module de.evoal.core.optimisation {
+
+	/**
+	 * The algorithm-independent problem description.
+	 */
+	type problem {
+		/**
+		 * A description of the problem.
+		 */
+		description : string;
+
+        /**
+         * Description of the optimisation space.
+         */
+	    'optimisation-space' : array data;
+
+        /**
+         * Optional search space description.
+         */
+    	'search-space' : array data;
+
+		/**
+		 * The optimisation function (if known) that maps between search and
+		 *   optimisation space.
+		 */
+        'optimisation-function' : instance 'optimisation-function';
+
+		/**
+		 * Do we have to search for a maximum or a minimum?
+		 */
+		maximise : boolean;
+    }
+
+	/**
+	 * Abstract base type for functions mapping a solution from the search to
+	 *   the optimisation space.
+	 */
+	abstract type 'optimisation-function' {		
+	}
+	
+	/**
+	 * Abstract base class for optimisation functions that call a subsequent optimisation
+	 *   function during calculation.
+	 */
+	abstract type 'decorated-optimisation-function' extends 'optimisation-function' {
+		/**
+		 * Fitness function we are calling during the fitness calculation.
+		 */
+		function : instance 'optimisation-function';
+	}
+	
+	/**
+	 * Place-holder for an unknown optimisation function.
+	 */
+	type 'unknown-function' extends 'optimisation-function' {}
+
+	/**
+	 * Optimisation function that calculates the difference between a optimisation
+	 *   value and a target value to optimise to:<br/>
+	 *
+	 * <mathml>
+	 *   <math>
+	 *     <mrow>
+	 *       <mi>r</mi>
+	 *       <mi>e</mi>
+	 *       <mi>u</mi>
+	 *       <mi>l</mi>
+	 *       <mi>t</mi>
+	 *       <mo>=</mo>
+	 *       <mi>f</mi>
+	 *       <mi>u</mi>
+	 *       <mi>n</mi>
+	 *       <mi>c</mi>
+	 *       <mi>t</mi>
+	 *       <mi>i</mi>
+	 *       <mi>o</mi>
+	 *       <mi>n</mi>
+	 *       <mo form="prefix" stretchy="false">(</mo>
+	 *       <mi>c</mi>
+	 *       <mi>a</mi>
+	 *       <mi>n</mi>
+	 *       <mi>d</mi>
+	 *       <mi>i</mi>
+	 *       <mi>d</mi>
+	 *       <mi>a</mi>
+	 *       <mi>t</mi>
+	 *       <mi>e</mi>
+	 *       <mo form="postfix" stretchy="false">)</mo>
+	 *       <mo>−</mo>
+	 *       <mi>t</mi>
+	 *       <mi>a</mi>
+	 *       <mi>r</mi>
+	 *       <mi>g</mi>
+	 *       <mi>e</mi>
+	 *       <mi>t</mi>
+	 *     </mrow>
+	 *   </math>
+	 * </mathml>
+	 */
+	type 'optimisation-distance' extends 'decorated-optimisation-function' {
+		/**
+		 * The target to search for. This value may be unset if the value is set
+		 *   by EvoAl itself during evaluation.
+		 */
+		target : array instance variable;
+	}
+	
+	/**
+	 * A binding of a variable.
+	 */
+	type variable {
+		/**
+		 * The data to bind.
+		 */
+		name : data;
+		
+		/**
+		 * The actual value.
+		 */
+		val : literal;
+	}
+
+
+    /**
+	 * Abstract base type for optimisation algorithms.
+	 */	
+	abstract type algorithm {
+        /**
+         * Source for initial candidates.
+         */
+        'initialisation' : instance 'initial-population';
+
+        /**
+         * Extension to the optimisation function defined in corresponding problem.
+         */
+        'optimisation-function' : instance 'fitness-function';
+
+        /**
+         * Comparator to use for comparing results of the optimisation function.
+         */
+	    'comparator' : instance comparator;
+	}
+
+	/**
+	 * Comparator for comparing optimisation function results to each other.
+	 */	
+	abstract type comparator {}
+	
+	/**
+	 * Comparator that calculates a weighted sum for multi-dimensional optimisation
+	 *   values.
+	 */
+	type 'weighted-sum' extends comparator {
+		/**
+		 * Weights for summing the dimensions.
+		 */
+		weights : array real;
+	}
+
+	/**
+	 * Compares the data in the specified order. First, the first data entry is compared.
+	 *   If the values differ, the comparison result is returned. If the values are equal,
+	 *   the next entry is taken into account.
+	 */
+	type 'hierarchical-comparator' extends comparator {
+	    /**
+	     * Comparison order of the fitness data.
+	     */
+	    order : array data;
+	}
+	
+	/**
+	 * Comparator for a single number-based fitness value (such as a double).
+	 */
+	type 'numeric-comparator' extends comparator {
+	}
+	
+	/**
+	 * A fitness function during the optimisation (not at the problem-level).
+	 */
+	abstract type 'fitness-function' {}
+	
+	/**
+	 * Abstract base class for all fitness functions that call a subsequent fitness
+	 *   function during calculation.
+	 */
+	abstract type 'decorated-fitness-function' extends 'fitness-function' {
+		/**
+		 * Fitness function we are calling during the fitness calculation.
+		 */
+		function : instance 'optimisation-function';
+	}
+
+	/**
+	 * Modifies the fitness value based on constraint violation.
+	 */	
+	type 'malus' extends 'decorated-fitness-function' {
+	}
+	
+	/**
+	 * Fitness function that calculates the difference between a fitness value and a
+	 *   target value to optimize to:<br/>
+	 *
+	 * <mathml>
+	 *   <math>
+	 *     <mrow>
+	 *       <mi>f</mi>
+	 *       <mi>i</mi>
+	 *       <mi>t</mi>
+	 *       <mi>n</mi>
+	 *       <mi>e</mi>
+	 *       <mi>s</mi>
+	 *       <mi>s</mi>
+	 *       <mo>=</mo>
+	 *       <mi>f</mi>
+	 *       <mi>u</mi>
+	 *       <mi>n</mi>
+	 *       <mi>c</mi>
+	 *       <mi>t</mi>
+	 *       <mi>i</mi>
+	 *       <mi>o</mi>
+	 *       <mi>n</mi>
+	 *       <mo form="prefix" stretchy="false">(</mo>
+	 *       <mi>i</mi>
+	 *       <mi>n</mi>
+	 *       <mi>d</mi>
+	 *       <mo form="postfix" stretchy="false">)</mo>
+	 *       <mo>−</mo>
+	 *       <mi>t</mi>
+	 *       <mi>a</mi>
+	 *       <mi>r</mi>
+	 *       <mi>g</mi>
+	 *       <mi>e</mi>
+	 *       <mi>t</mi>
+	 *     </mrow>
+	 *   </math>
+	 * </mathml>
+	 */
+	type 'fitness-distance' extends 'decorated-fitness-function' {
+		/**
+		 * The target to search for. This value may be unset if the value is set
+		 *   by EvoAl itself during evaluation.
+		 */
+		target : array instance variable;
+	}
+
+	type 'random-fitness' extends 'fitness-function' {
+	}
+	
+	type 'problem-function' extends 'fitness-function' {
+	}
+	
+	/**
+	 * Abstract base type for initial population strategies.
+	 */
+	abstract type 'initial-population' {}
+	
+	/**
+	 * Chooses the initial population randomly from the search space. The selection
+	 *   process respects the boundaries defined at the data definition-level.
+	 */
+	type 'random-population' extends 'initial-population' {
+	}	
+	
+	abstract type 'statistics-writer' {
+	}
+
+    /**
+     * Writes the best candidate for every generation:
+	 *
+	 * <ul>
+	 *   <li>generation</li>
+	 *   <li>search-space-variable-1</li>
+	 *   <li>search-space-variable-2</li>
+	 *   ...
+	 *   <li>search-space-variable-n</li>
+	 *   <li>optimisation-space-variable-1</li>
+	 *   <li>optimisation-space-variable-2</li>
+	 *   ...
+	 *   <li>optimisation-space-variable-n</li>
+	 * </ul>
+     */
+	type 'best-candidate-per-generation' extends 'statistics-writer' {
+	    /**
+	     * If set to <tt>true</tt>, every search space variable is prefixed with
+	     *   "<tt>search-space-value-</tt>" and every optimisation space variable
+	     *   is prefixed with "<tt>optimisation-space-value-</tt>". This can be
+	     *   useful if search and optimisation space share variables.
+	     */
+	    'prefix-data' : boolean := false;
+
+	    /**
+	     * If search space variables should be stored.
+	     */
+	    'store-search-space' : boolean := true;
+
+
+	    /**
+	     * If optimisation space variables should be stored.
+	     */
+	    'store-optimisation-space' : boolean := true;
+	}
+
+    /**
+     * Writes all candidates for every generation:
+     *
+     * <ul>
+     *   <li>generation</li>
+     *   <li>index</li>
+     *   <li>search-space-variable-1</li>
+     *   <li>search-space-variable-2</li>
+     *   ...
+     *   <li>search-space-variable-n</li>
+     *   <li>optimisation-space-variable-1</li>
+     *   <li>optimisation-space-variable-2</li>
+     *   ...
+     *   <li>optimisation-space-variable-n</li>
+     * </ul>
+     */
+    type 'candidates-per-generation' extends 'statistics-writer' {
+        /**
+         * If set to <tt>true</tt>, every search space variable is prefixed with
+         *   "<tt>search-space-value-</tt>" and every optimisation space variable
+         *   is prefixed with "<tt>optimisation-space-value-</tt>". This can be
+         *   useful if search and optimisation space share variables.
+         */
+        'prefix-data' : boolean := false;
+
+        /**
+         * If search space variables should be stored.
+         */
+        'store-search-space' : boolean := true;
+
+
+        /**
+         * If optimisation space variables should be stored.
+         */
+        'store-optimisation-space' : boolean := true;
+    }
+
+	/**
+	 * Does not write any statistics. Can be used to disable statistics output.
+	 */
+	type none extends 'statistics-writer' {}
+}

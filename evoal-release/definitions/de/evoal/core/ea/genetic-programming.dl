@@ -1,0 +1,143 @@
+import "definitions" from de.evoal.core.optimisation;
+import "definitions" from de.evoal.core.ea.optimisation;
+
+module de.evoal.core.ea.'genetic-programming' {
+    /**
+     * Pseudo-type used for .ddl (and .ol) specification.
+     */
+	type 'program' {
+	}
+
+    /**
+     * Base type for possible program operations.
+     */
+	type operation {
+	}
+
+    /**
+     * Simple &lt;left> + &lt;right>
+     */
+	type plus extends operation {
+	}
+
+    /**
+     * Simple &lt;left> - &lt;right>
+     */
+	type minus extends operation {
+	}
+
+    /**
+     * Simple &lt;left> * &lt;right>
+     */
+	type multiply extends operation {
+	}
+	 
+   /**     
+     * Simple &lt;left> / &lt;right>
+     */
+	type divide extends operation {
+	}
+	
+    /**
+     * Simple sqrt(&lt;op>)
+     */
+	type sqrt extends operation {
+	}
+
+    /**
+     * Simple pow(&lt;base>, &lt;exp>)
+     */
+	type pow extends operation {
+	}
+
+	/**
+     * Genotype for genetic programming.
+     */
+	type 'program-genotype' extends genotype {
+        chromosomes : array instance 'program-chromosome';
+	}
+	
+	type constant {
+		name : string;
+		value : real;
+	}
+
+	/**
+	 * A program chromosome represents a complete program.
+	 */
+	type 'program-chromosome' {
+		/**
+		 * The content from the specification to map. Has
+		 *   to be of type 'program'.
+		 */
+        content : data;
+        
+        /**
+         * Variables to use within the generated program.
+         */
+        variables : array data;
+        
+        /**
+         * Allowed operations to use within the generated program.
+         */
+        operations : array instance operation;
+        
+        /**
+         * Possible constants.
+         */
+        constants : array instance constant;
+
+        'ephemeral-constants' : array instance 'ephemeral-constant';
+        
+        /**
+         * Depth of randomly generated functions.
+         */
+        'initial-depth' : int := 5;
+
+        'validators' : array instance 'validator';
+	}
+
+	abstract type 'validator' {}
+
+	type 'must-use-variable' extends validator {
+	    count : int := 1;
+	}
+
+	type 'program-size' extends validator {
+	    'max-size' : int := 10;
+	}
+
+	type 'single-node-crossover' extends crossover {
+        'probability' : real;
+    }
+
+    type 'random-tree-population' extends 'initial-population' {
+    }
+
+    type 'regression-fitness' extends 'fitness-function' {
+        'calculations' : array instance 'quality-of-fit';
+    }
+
+    abstract type 'quality-of-fit' {}
+
+    type 'squared-error' extends 'quality-of-fit' {
+      function : data;
+      input : array data;
+      output : array data;
+      reference : string;
+    }
+
+    type 'ephemeral-constant' {
+        lower : int := -25;
+        upper : int := 25;
+        count : int  := 10;
+    }
+
+    /**
+     * A mutator for Genetic Programming that rewrites mathematical expressions.
+     */
+    type 'mathematical-expression-rewriter' extends mutator {
+        probability : real;
+    }
+
+}

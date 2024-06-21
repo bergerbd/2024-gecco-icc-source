@@ -1,0 +1,34 @@
+import "definitions" from de.evoal.core.optimisation;
+import "definitions" from de.evoal.generator.generator;
+
+module de.evoal.generator.optimisation {
+	/**
+	 * A combination of kown optimisation functions for benchmarking purposes.
+	 */
+	type 'benchmark-function' extends 'optimisation-function' {
+	    /**
+         * The binding of benchmark functions to the generated data.
+         */
+	     benchmarks : array instance 'benchmark-configuration';
+	}
+
+    /**
+     * States the benchmark function to use and which data it generates.
+     */
+	type 'benchmark-configuration' {
+	    /**
+	     * Benchmark function to use during evaluation.
+	     */
+	    function : instance benchmark;
+
+	    /**
+	     * The data the benchmark will read.
+	     */
+	    reads : array data;
+
+	    /**
+	     * The data the benchmark will generate.
+	     */
+	    writes : array data;
+	}
+}

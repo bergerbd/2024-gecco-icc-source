@@ -1,0 +1,3 @@
+JVM_OPTS=( --add-exports io.jenetics.base/io.jenetics.internal.math=de.evoal.core.ea \
+           --add-exports io.jenetics.base/io.jenetics.internal.collection=de.evoal.core.ea \
+           --add-exports io.jenetics.base/io.jenetics.internal.util=de.evoal.core.ea )

@@ -1,0 +1,50 @@
+import "definitions" from de.evoal.surrogate.ml;
+
+module de.evoal.surrogate.smile.ml {
+	abstract type 'epsilon-svr' extends surrogate {
+		/**
+	     * Some totally <b>accurate</b> description of a very soft margin.
+	     */
+		'soft-margin'   : real;
+		tolerance       : real;
+		'ε'             : real;
+	}
+	
+	type  'gaussian-svr' extends 'epsilon-svr' {
+		'σ'             : real;
+	}
+	
+	type 'hellinger-svr' extends 'epsilon-svr' {
+		'σ'             : real;
+	}
+	
+	type 'hyperbolic-tangent-svr' extends 'epsilon-svr' {
+		'σ'             : real;
+		scale           : real;
+		offset          : real;
+	}
+	
+	type 'laplacian-svr' extends 'epsilon-svr' {
+		'σ'             : real;
+	}
+	
+	type 'linear-svr' extends 'epsilon-svr' {
+		'σ'             : real;
+	}
+	
+	type 'pearson-svr' extends 'epsilon-svr' {
+		'σ'             : real;
+		'ω'             : real;
+	}
+	
+	type 'polynomial-svr' extends 'epsilon-svr' {
+		'σ'             : real;
+		'degree'        : int;
+		'scale'         : real;
+		'offset'        : real;
+	}
+	
+	type 'thin-plate-spline-svr' extends 'epsilon-svr' {
+		'σ'             : real;
+	}
+}

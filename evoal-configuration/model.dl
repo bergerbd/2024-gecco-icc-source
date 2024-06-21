@@ -1,0 +1,267 @@
+import "definitions" from de.evoal.core.optimisation;
+import "definitions" from de.evoal.core.ea.optimisation;
+import "definitions" from de.evoal.core.ea.mdo;
+import "definitions" from de.evoal.challenges.ic.'genetic-programming';
+
+module model {
+
+  /**
+   * The general policy to search
+   */
+  type policy extends model {
+    /**
+     * A positive number of policy entries.
+     * 
+     * @size > 0 
+     */
+    entries : array instance Entry;
+
+      /**
+       * The default action of none of the entries matches.
+       * 
+       * @range -1 < value < 4
+       */
+      action : int;
+    }
+
+	/**
+	 * A single entry of our policy.
+	 */
+    type Entry {
+      /**
+       * The action to perform if the condition holds.
+       * 
+       * @range -1 < value < 4
+       */
+      action : int;
+
+    /**
+     * The condition is an or expression. 
+     */
+     condition : instance OrExpression;
+    }
+
+	/**
+	 * An or expression is a disjunction of and expressions.
+	 */
+    type OrExpression {
+      /**
+	   * All subexpressions (all of type and).
+	   * 
+	   * @size > 0 
+       */
+      subexpressions : array instance AndExpression;
+    }
+
+
+	/**
+	 * An and expression is a conjunction of multiple comparisons.
+	 */
+    type AndExpression {
+      /**
+	   * All comparisons.
+	   * 
+	   * @size > 0 
+       */
+      comparisons : array instance Comparison;
+    }
+
+	/**
+	 * Abstract base type of comparisons.
+	 */
+    abstract type Comparison {
+    }
+
+	/**
+	 * A comparison of integer values.
+	 */
+    type IntegerComparison extends Comparison {
+      /**
+       * Possible operators are: <, >
+       * 
+       * @range -1 < value < 2
+       */
+      operator : int;
+        
+      /**
+       * Left operand of the comparison.
+       */
+      leftOperand  : instance IntegerFunctionCall;
+
+      /**
+       * Right operand of the comparison.
+       */
+      rightOperand : instance IntegerFunctionCall;
+    }
+
+	/**
+	 * Abstract base type for function calls that return an integer.
+	 */
+    abstract type IntegerFunctionCall {
+    }
+	
+	/**
+	 * Returns the fitness improvement if the board is moved to the given
+	 *   direction.
+	 */
+    type scoreGain extends IntegerFunctionCall {
+      /**
+       * The direction to move to.
+       * 
+       * @range -1 < value < 4
+       */
+      direction : int;    	
+    }
+    
+	/**
+	 * Returns the fitness improvement if the board is moved to the given
+	 *   directions.
+	 */
+    type scoreGains extends IntegerFunctionCall {
+      /**
+       * The first direction to move to.
+       * 
+       * @range -1 < value < 4
+       */
+      direction1 : int;    	
+
+      /**
+       * The second direction to move to.
+       * 
+       * @range -1 < value < 4
+       */
+      direction2 : int;    	
+    }
+    
+	/**
+	 * A comparison of boolean values.
+	 */    
+    type BooleanComparison extends Comparison {
+      /**
+       * Possible operators are: ==, !=
+       * 
+       * @range -1 < value < 2
+       */
+      operator : int;
+      
+      /**
+       * Left operand of the comparison.
+       */
+      leftOperand  : instance BooleanLiteral;
+
+      /**
+       * Right operand of the comparison.
+       */
+      rightOperand : instance BooleanFunctionCall;
+    }
+
+	/**
+	 * Abstract base class for all functions that return a boolean value.
+	 */
+    abstract type BooleanFunctionCall {
+    }
+
+	/**
+	 * Checks if it is valid to do a single move into 'direction'.
+	 */
+    type canMoveInDirection extends BooleanFunctionCall {
+      /**
+       * The direction to move to.
+       * 
+       * @range -1 < value < 4
+       */
+      direction : int;    	
+    }
+    
+	/**
+	 * Checks if it is valid to move into 'direction1' and then
+	 *   into 'direction2'.
+	 */
+    type canMoveInDirections extends BooleanFunctionCall {
+      /**
+       * The first direction to move to.
+       * 
+       * @range -1 < value < 4
+       */
+      direction1 : int;    	
+
+      /**
+       * The second direction to move to.
+       * 
+       * @range -1 < value < 4
+       */
+      direction2 : int; 
+    }
+
+	/**
+	 * Checks if the largest tile is at one of the game board sides.
+	 */
+	type isLargestAtSide extends BooleanFunctionCall {
+	}
+
+    /**
+     * Checks if largest will be at one of the game board sides.
+     */
+    type willLargestBeAtSide extends BooleanFunctionCall {
+      /**
+       * The direction to move to.
+       * 
+       * @range -1 < value < 4
+       */
+      direction : int;    	
+    }
+    
+    /**
+     * Returns if the largest tile is in the corner.
+     */
+    type isLargestInCorner extends BooleanFunctionCall {
+    }
+    
+    /**
+     * Returns if the largest tile will be in the corner after this move.
+     */
+    type willLargestBeInCorner extends BooleanFunctionCall {
+      /**
+       * The direction to move to.
+       * 
+       * @range -1 < value < 4
+       */
+      direction : int;    	
+    }    
+    
+    /**
+     * Checks if the move will unsort the board. A board is unsorted if there is a
+     *   row or column with non-sorted number sequence (ignoring the number 0).
+     */
+    type willBeUnsorted extends BooleanFunctionCall {
+      /**
+       * The direction to move to.
+       * 
+       * @range -1 < value < 4
+       */
+      direction : int;    	
+    }
+
+    /**
+     * Checks if the move will sort the board. A board is sorted if there is any
+     *   row or column with a non-sorted number sequence (ignoring the number 0).
+     */
+    type willBeSorted extends BooleanFunctionCall {
+      /**
+       * The direction to move to.
+       * 
+       * @range -1 < value < 4
+       */
+      direction : int;    	
+    }
+
+	/**
+	 * A boolean literal for comparison.
+	 */
+    type BooleanLiteral {
+      /**
+       * The boolean value (either true or false).
+       */
+      value : boolean;
+    }
+}

@@ -1,0 +1,258 @@
+import "definitions" from de.evoal.core.math;
+
+module de.evoal.generator.generator {
+	abstract type benchmark{}
+	
+	/**
+	 * In mathematical optimisation, the Ackley function is a non-convex function
+	 * used as a performance test problem for optimisation algorithms. It was proposed
+	 * by David Ackley in his 1987 PhD dissertation. ... <a href="https://en.wikipedia.org/wiki/Ackley_function">Wikipedia</a>.
+	 * 
+	 * <math display="block">
+	 *   <mrow>
+	 *     <mi>f</mi>
+	 *     <mo form="prefix" stretchy="false">(</mo>
+	 *     <mi>w</mi>
+	 *     <mi>r</mi>
+	 *     <mi>i</mi>
+	 *     <mi>t</mi>
+	 *     <msub>
+	 *       <mi>e</mi>
+	 *       <mn>0</mn>
+	 *     </msub>
+	 *     <mo form="postfix" stretchy="false">)</mo>
+	 *     <mo>=</mo>
+	 *     <mo>−</mo>
+	 *     <mi>a</mi>
+	 *     <mo>⋅</mo>
+	 *     <mi>e</mi>
+	 *     <mi>x</mi>
+	 *     <mi>p</mi>
+	 *     <mo form="prefix" stretchy="false">(</mo>
+	 *     <mo>−</mo>
+	 *     <mi>b</mi>
+	 *     <msqrt>
+	 *       <mrow>
+	 *         <mfrac>
+	 *           <mn>1</mn>
+	 *           <mi>n</mi>
+	 *         </mfrac>
+	 *         <mrow>
+	 *           <munderover>
+	 *             <mo movablelimits="false">∑</mo>
+	 *             <mrow>
+	 *               <mi>i</mi>
+	 *               <mo>=</mo>
+	 *               <mn>1</mn>
+	 *             </mrow>
+	 *             <mi>n</mi>
+	 *           </munderover>
+	 *         </mrow>
+	 *         <mi>r</mi>
+	 *         <mi>e</mi>
+	 *         <mi>a</mi>
+	 *         <msub>
+	 *           <mi>d</mi>
+	 *           <mi>i</mi>
+	 *         </msub>
+	 *       </mrow>
+	 *     </msqrt>
+	 *     <mo form="postfix" stretchy="false">)</mo>
+	 *     <mo>−</mo>
+	 *     <mi>e</mi>
+	 *     <mi>x</mi>
+	 *     <mi>p</mi>
+	 *     <mo form="prefix" stretchy="false">(</mo>
+	 *     <mfrac>
+	 *       <mn>1</mn>
+	 *       <mi>n</mi>
+	 *     </mfrac>
+	 *     <mrow>
+	 *       <munderover>
+	 *         <mo movablelimits="false">∑</mo>
+	 *         <mrow>
+	 *           <mi>i</mi>
+	 *           <mo>=</mo>
+	 *           <mn>1</mn>
+	 *         </mrow>
+	 *         <mi>n</mi>
+	 *       </munderover>
+	 *     </mrow>
+	 *     <mi>c</mi>
+	 *     <mi>o</mi>
+	 *     <mi>s</mi>
+	 *     <mo form="prefix" stretchy="false">(</mo>
+	 *     <mi>c</mi>
+	 *     <mo>⋅</mo>
+	 *     <mi>r</mi>
+	 *     <mi>e</mi>
+	 *     <mi>a</mi>
+	 *     <msub>
+	 *       <mi>d</mi>
+	 *       <mi>i</mi>
+	 *     </msub>
+	 *     <mo form="postfix" stretchy="false">)</mo>
+	 *     <mo form="postfix" stretchy="false">)</mo>
+	 *     <mo>+</mo>
+	 *     <mi>a</mi>
+	 *     <mo>+</mo>
+	 *     <mi>e</mi>
+	 *     <mi>x</mi>
+	 *     <mi>p</mi>
+	 *     <mo form="prefix" stretchy="false">(</mo>
+	 *     <mn>1</mn>
+	 *     <mo form="postfix" stretchy="false">)</mo>
+	 *   </mrow>
+	 * </math>
+	 * 
+	 * According to this specification, the function only generates a single output
+	 *   variable out of a n input variables.
+	 */
+	type ackley extends benchmark {
+		/**
+		 * The constant a is set to 20 in the original Ackley function.
+		 */
+		'a' : real := 20.0;
+		
+		/**
+		 * The constant b is set to 0.2 in the original Ackley function.
+		 */
+		b : real := 0.2;
+	
+		/**
+		 * The constant c is set to 2π in the original Ackley function.
+		 */
+		'c' : real := 2 * PI;
+	}
+	
+	/**
+	 * In mathematical optimisation, the Rastrigin function is a non-convex function
+	 * used as a performance test problem for optimisation algorithms. ... <a href="https://en.wikipedia.org/wiki/Rastrigin_function">Wikipedia</a>
+	 * 
+	 * <math display="block">
+	 *   <mrow>
+	 *     <mi>w</mi>
+	 *     <mi>r</mi>
+	 *     <mi>i</mi>
+	 *     <mi>t</mi>
+	 *     <msub>
+	 *       <mi>e</mi>
+	 *       <mn>0</mn>
+	 *     </msub>
+	 *     <mo>=</mo>
+	 *     <mi>a</mi>
+	 *     <mo>⋅</mo>
+	 *     <mi>n</mi>
+	 *     <mo>+</mo>
+	 *     <mrow>
+	 *       <munderover>
+	 *         <mo movablelimits="false">∑</mo>
+	 *         <mrow>
+	 *           <mi>i</mi>
+	 *           <mo>=</mo>
+	 *           <mn>1</mn>
+	 *         </mrow>
+	 *         <mi>n</mi>
+	 *       </munderover>
+	 *     </mrow>
+	 *     <mo form="prefix" stretchy="false">(</mo>
+	 *     <mi>r</mi>
+	 *     <mi>e</mi>
+	 *     <mi>a</mi>
+	 *     <msubsup>
+	 *       <mi>d</mi>
+	 *       <mi>i</mi>
+	 *       <mn>2</mn>
+	 *     </msubsup>
+	 *     <mo>−</mo>
+	 *     <mi>A</mi>
+	 *     <mo>⋅</mo>
+	 *     <mi>c</mi>
+	 *     <mi>o</mi>
+	 *     <mi>s</mi>
+	 *     <mo form="prefix" stretchy="false">(</mo>
+	 *     <mn>2</mn>
+	 *     <mi>π</mi>
+	 *     <mo>⋅</mo>
+	 *     <mi>r</mi>
+	 *     <mi>e</mi>
+	 *     <mi>a</mi>
+	 *     <msub>
+	 *       <mi>d</mi>
+	 *       <mi>i</mi>
+	 *     </msub>
+	 *     <mo form="postfix" stretchy="false">)</mo>
+	 *     <mo form="postfix" stretchy="false">)</mo>
+	 *   </mrow>
+	 * </math>
+	 * 
+	 */
+	type rastrigin extends benchmark {
+		/**
+		 * Constant a, which is typically 10.
+		 */
+		'a' : real := 10.0;
+	}
+	
+	/**
+	 * TODO Document me
+	 */
+	type 'weighted-sphere' extends benchmark {	
+	}
+	
+	/**
+	 * TODO Document me
+	 */
+	type 'rosenbrock' extends benchmark {	
+	}
+	
+	/**
+	 * Adds constant values for the specified data.
+	 */
+	type constants {
+		/**
+		 * The constant values to append.
+		 */
+		constants : array real;	
+	}
+	
+	
+	type distribution {}
+
+	type 'multivariate-normal-distribution' extends distribution {
+		means : array real;
+		covariance : array array real;
+	}
+	
+	/**
+	 * Adds normally distributed noise to data. For each data to noise, you can
+	 *   specify a separate distribution.
+	 */
+	type 'normally-distributed-noise' {
+		/**
+		 * The different distributions to use. Make sure it matches the size of
+		 *   the data the function writes.
+		 */
+		distributions : array instance distribution;
+	}
+	
+	
+	/**
+	 * A distribution specification.
+	 */
+	type 'normal-distribution' extends distribution {
+		/**
+		 * The distribution's expected value.
+		 */
+		'μ' : real;
+		
+		/**
+		 * The distribution's standard deviation.
+		 */
+		'σ' : real;	
+	}
+	
+	
+	type 'constraint-validation' {	
+	}
+}

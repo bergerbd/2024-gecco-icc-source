@@ -1,0 +1,23 @@
+import "definitions" from de.evoal.core.optimisation;
+import "definitions" from de.evoal.core.ea.optimisation;
+
+module de.evoal.challenges.ic.optimisation {
+    /**
+     * Fitness function for the game 2048
+     */
+    type '2048-fitness' extends 'fitness-function' {
+      /**
+       * Number of games to play with each individual.
+       */
+      'game-count' : int := 3;
+    }
+    
+    type 'plus-one-mutator' extends 'crossover' {
+		probability : real;
+    }
+    
+    type 'policy-rotation-mutator' extends mutator {
+		probability : real;
+ 		attributes  : array string;
+    }	    
+}

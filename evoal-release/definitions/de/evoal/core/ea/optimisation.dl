@@ -1,0 +1,378 @@
+import "definitions" from de.evoal.core.optimisation;
+
+module de.evoal.core.ea.optimisation {
+    /**
+     * An evolutionary algorithm.
+     **/
+	type 'evolutionary-algorithm' extends 'algorithm' {
+	    /**
+	     * Number of generations to run.
+	     */
+		'number-of-generations' : int;
+
+		/**
+		 * Absolute number of individuals in the EA's population.
+		 */
+		'size-of-population' : int;
+
+		/**
+		 * The maximum age of an individual. Individuals that are
+		 *   older than this threshold will be removed from the
+		 *   population.
+		 */
+		'maximum-age' : int;
+
+		/**
+		 * When calculating a new generation <i>i+1</i>, the offspring fraction
+		 *   determines the number of individuals that are offsprings of individuals
+		 *   of individuals of generation <i>i</i>. The number of survivors is set
+		 *   to <i>1 - 'offspring-offset'</i>.
+		 */
+		'offspring-fraction' : real := 0.6;
+
+	    /**
+	     * The genotype describes how the domain data is mapped to the
+	     *   EA using different chromosomes and genes.
+	     */
+		genotype : instance genotype;
+	
+		handlers : array instance 'handler';
+
+        /**
+         * Configures the individual selection for survivors and offsprings.
+         */
+		selectors : instance selectors;
+		alterers : instance alterers;
+	}
+
+    /**
+     * Base class for genotypes.
+     */
+	abstract type genotype {
+	}
+
+    /**
+     * A vector-based genotype that automatically maps 'data' to genes.
+     */
+	type 'vector-genotype' extends genotype {
+	    /**
+	     * List of chromosomes for mapping data on different ways.
+	     */
+        chromosomes : array instance chromosome;
+	}
+
+	/**
+	 * Abstract base type for different chromosome types.
+	 */
+	abstract type chromosome {
+	    /**
+	     * A chromosome consists of one to multiple genes.
+	     */
+		genes : array instance gene;
+	}
+	
+	type 'bit-chromosome' extends chromosome {
+	    scale : int;
+	}
+	
+	type 'gray-chromosome' extends 'bit-chromosome' {
+	    scale : int;
+	}
+	
+	type 'double-chromosome' extends chromosome {
+	}
+	
+	type 'integer-chromosome' extends chromosome {
+	}
+
+	/**
+	 * A gene maps some data.
+	 */
+	type gene {
+	    content : data;
+	}
+	
+    type pareto extends comparator {
+	}
+	
+	abstract type handler {}
+	
+	type 'constraint-handler' extends handler {
+		category : string;
+		calculation : instance 'constraint-calculation';
+		'constraint-handling' : instance 'constraint-handling';
+	}
+	
+	abstract type 'constraint-calculation' {
+	}
+	
+	type 'standard-deviation-calculation' extends 'constraint-calculation' {
+		factor : real;
+	}
+	
+	type 'normal-calculation' extends 'constraint-calculation' {
+	}
+
+	abstract type 'constraint-handling' {}
+	
+	type 'kill-at-birth' extends 'constraint-handling'{
+		'repair-strategy' : instance 'repair-strategy';
+	}
+	
+	abstract type 'repair-strategy' {}
+	
+	type 'repair-with-random' extends 'repair-strategy' {}
+	
+	type 'malus-for-fitness' extends 'constraint-handling' {
+		smoothing : real;
+	}
+
+    /**
+     * Allows to configure survivor and offspring selection.
+     */
+	type selectors {
+	    /**
+	     * Determines how survivors are selected. Survivors are directly
+	     *   copied to the next generation.
+	     */
+		survivor : instance selector;
+
+	    /**
+	     * Determines how offsprings are selected. Offsprings might be altered for
+	     *   the next generation.
+	     */
+		offspring : instance selector;
+	}
+	
+	abstract type selector {
+	}
+
+    /**
+     * This NSGA2 selector chooses <i>count</i> elements of the population. Therefore, the population is sorted using
+     *   the Crowded-Comparison Operator first. For details, please read the original publication:
+     *
+     * K. Deb, A. Pratap, S. Agarwal, and T. Meyarivan. <i>A fast and elitist multiobjective genetic algorithm:
+     * NSGA-II</i>. Transactions on Evolutionary Computation, 6, 2, 182-197, April 2002. DOI: 10.1109/4235.996017.
+     *
+     * When using this selector, you have to ensure that you are using the ParetoComparator. Otherwise, the selector
+     *  breaks.
+     */
+	type 'nsga2-selector' extends selector {
+	}
+
+	/**
+	 * The roulette-wheel selector is also known as fitness proportional selector. The fitness value <i>f<sub>i</sub></i>
+	 *   is used to calculate the selection probability of individual <i>i</i>.
+	 */
+	type 'roulette-wheel-selector' extends selector {
+	}
+
+    /**
+     * The elite selector copies a small proportion of the fittest candidates, without changes, into the next
+     *   generation. This may have a dramatic impact on performance by ensuring that the GA doesn't waste time
+     *   re-discovering previously refused partial solutions. Individuals that are preserved through elitism remain
+     *   eligible for selection as parents of the next generation. Elitism is also related with memory: remember the
+     *   best solution found so far. A problem with elitism is that it may causes the GA to converge to a local
+     * optimum, so pure elitism is a race to the nearest local optimum.
+     */
+	type 'elite-selector' extends selector {
+	    /**
+	     * Share of individuals that should be kept.
+	     */
+		'size-factor' : real;
+
+		/**
+		 * How to select the remaining individuals.
+		 */
+		'non-elite-selector' : instance selector;
+	}
+	
+	type 'boltzmann-selector' extends selector {
+		beta : real;
+	}
+	
+	type 'exponential-rank-selector' extends selector {
+	}
+	
+	type 'linear-rank-selector' extends selector {
+		nminus : int;
+	}
+
+	/**
+	 * The Monte Carlo selector selects the individuals from a given population randomly. This selector can be used to
+	 *   measure the performance of a other selectors. In general, the performance of a selector should be better than
+	 *   the selection performance of the Monte Carlo selector.
+	 */
+	type 'monte-carlo-selector' extends selector {
+	}
+	
+	type 'probability-selector' extends selector {
+	}
+	
+	type 'stochastic-universal-selector' extends selector {
+	}
+
+	/**
+	 * In tournament selection the best individual from a random sample of <i>s</i> individuals is chosen from the
+	 *   population. The samples are drawn with replacement. An individual will win a tournament only if its fitness is
+	 *   greater than the fitness of the other <i>s - 1</i> competitors. Note that the worst individual never survives,
+	 *   and the best individual wins in all the tournaments it participates. The selection pressure can be varied by
+	 *   changing the tournament size <i>s</i>. For large values of <i>s</i>, weak individuals have less chance being
+	 *   selected.
+	 */
+	type 'tournament-selector' extends selector {
+	    /**
+	     * Share for determining the number of competitors.
+	     */
+		'size-factor' : real;
+	}
+	
+	type 'truncation-selector' extends selector {
+		'worst-rank' : int;
+	}
+
+	/**
+	 * After offspring selection, the offspring can be altered to get new individuals for the next generation.
+	 */
+	type alterers {
+		/**
+		 * The mutator modifies the genetic material of an instance to get even more genetic diversity and to make
+		 *   sure the population does not get stuck in a local optimum.
+		 */
+		mutator : array instance mutator ;
+
+	    /**
+	     * Describes how to combine two individuals to create new ones that are successors of their parents.
+	     */
+		crossover : array instance crossover;
+	}
+	
+	abstract type crossover {}
+	
+	type 'mean-alterer' extends crossover {
+		probability : real;
+	}
+	
+	type 'correlation-mean-alterer' extends crossover {
+		probability : real;
+	}
+	
+	type 'partial-matched-alterer' extends crossover {
+		probability : real;
+	}
+	
+	type 'correlation-partial-matched-alterer' extends crossover {
+		probability : real;
+	}
+	
+	type 'line-crossover' extends crossover {
+		probability : real;
+		position : real;
+	}
+	
+	type 'correlation-line-crossover' extends crossover {
+		probability : real;
+		position : real;
+	}
+	
+	type 'multi-point-crossover' extends crossover {
+		probability : real;
+		count : int;
+	}
+	
+	type 'correlation-multi-point-crossover' extends crossover {
+		probability : real;
+		count : int;
+	}
+	
+	type 'single-point-crossover' extends crossover {
+		probability : real;
+	}
+	
+	type 'correlation-single-point-crossover' extends crossover {
+		probability : real;
+	}
+	
+	type 'uniform-crossover' extends crossover {
+		'crossover-probability' : real;
+		'swap-probability' : real;
+	}
+	
+	type 'correlation-uniform-crossover' extends crossover {
+		'crossover-probability' : real;
+		'swap-probability' : real;
+	}
+	
+	abstract type mutator {
+	}
+
+    /**
+     * Replaces a gene with given probability with a random value.
+     */
+	type 'probability-mutator' extends mutator {
+	    /**
+	     * The mutation probability
+	     */
+        probability : real;
+    }
+
+	/**
+	 * The Gaussian mutator mutates number-based genes. This mutator picks a new value based on a Gaussian distribution
+	 *   around the current value of the gene.
+	 **/
+	type 'gaussian-mutator' extends mutator {
+		probability : real;
+	}
+	
+	/**
+	 * The correlation-aware gaussian mutator mutates number-based genes. It works like the gaussian mutator but
+	 *   respects correlations between different genes.
+	 **/
+	type 'correlation-gaussian-mutator' extends mutator {
+	    /**
+	     * The mutation probability
+	     */
+		probability : real;
+
+	    /**
+	     * ???
+	     */
+		threshold : real;
+	}
+
+	/**
+	 * The swap mutator changes the order of genes in a chromosome, with the hope of bringing related genes closer
+	 *   together, thereby facilitating the production of building blocks.
+	 */
+	type 'swap-mutator' extends mutator {
+		probability : real;
+	}
+	
+	type 'correlation-swap-mutator' extends mutator {
+		probability : real;
+		threshold : real;
+	}
+	
+	type 'bit-flip-mutator' extends mutator  {
+		probability : real;
+	}
+	
+	type 'correlation-bit-flip-mutator' extends mutator {
+		probability : real;
+		threshold : real;
+	}
+
+    /**
+     * This mutator is a wrapper to its child mutators. For each mutation it selects one
+     *   of its children randomly and passes the mutation request to this child.
+     *
+     * This approach allows one to have different mutation strategies but to make sure
+     *   that an individual is not changed by all of them once. The normal way to avoid
+     *   an application of many mutators in a single step would normally be to set the
+     *   probabilities to very small values but this makes it very likely the individual
+     *   is not changed at all.
+     */
+    type 'single-choice-mutator' extends mutator {
+        'alterers' : array instance 'mutator';
+    }
+}

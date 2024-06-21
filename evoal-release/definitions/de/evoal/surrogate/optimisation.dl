@@ -1,0 +1,64 @@
+import "definitions" from de.evoal.core.optimisation;
+import "definitions" from de.evoal.core.ea.optimisation;
+
+module de.evoal.surrogate.optimisation {
+	/**
+	 * Calculating fitness value by using a surrogate function:<br/>
+	 *
+	 * <mathml>
+	 *   <math>
+	 *     <mrow>
+	 *       <mi>f</mi>
+	 *       <mi>i</mi>
+	 *       <mi>t</mi>
+	 *       <mi>n</mi>
+	 *       <mi>e</mi>
+	 *       <mi>s</mi>
+	 *       <mi>s</mi>
+	 *       <mo>=</mo>
+	 *       <mi>s</mi>
+	 *       <mi>u</mi>
+	 *       <mi>r</mi>
+	 *       <mi>r</mi>
+	 *       <mi>o</mi>
+	 *       <mi>g</mi>
+	 *       <mi>a</mi>
+	 *       <mi>t</mi>
+	 *       <mi>e</mi>
+	 *       <mo form="prefix" stretchy="false">(</mo>
+	 *       <mi>i</mi>
+	 *       <mi>n</mi>
+	 *       <mi>d</mi>
+	 *       <mo form="postfix" stretchy="false">)</mo>
+	 *     </mrow>
+	 *   </math>
+	 * </mathml>
+	 */
+	type surrogate extends 'fitness-function' {
+	}
+	
+	/**
+	 * Use training data as initial population.
+	 */
+	type training extends 'initial-population' {
+	}
+	
+	/**
+	 * Repair individuals with training data.
+	 */
+	type 'repair-with-training' extends 'repair-strategy' {
+	}
+	
+	type 'constraint-statistics' extends 'statistics-writer' {
+	}
+	
+	type 'correlated' extends 'statistics-writer' {
+	}
+	
+	type 'range-correlated' extends 'statistics-writer' {
+	}
+	
+	type 'prediction-per-individual' extends 'statistics-writer' {
+	}
+
+}
